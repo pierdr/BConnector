@@ -62,7 +62,7 @@
     if([object isKindOfClass:[NSDictionary class]])
     {
         NSDictionary *results = object;
-        if([[results allKeys] containsObject:@"message"])
+        if([[results allKeys] containsObject:@"message"] && [[results allKeys] containsObject:@"device"])
         {
             NSString* keyDirective      = [results valueForKey:@"message"];
             int boardNum                = [[results valueForKey:@"device"] intValue];
@@ -75,12 +75,48 @@
             else if([keyDirective isEqualToString:@"setColor"])
             {
                 [[ConsoleManager sharedManager] log:keyDirective];
-                [[BoardsManager sharedManager] setLEDColor:[UIColor colorWithRed:([[results valueForKey:@"red"] floatValue]/255) green:([[results valueForKey:@"green"] floatValue]/255) blue:([[results valueForKey:@"blue"] floatValue]/255) alpha:([[results valueForKey:@"alpha"] floatValue]/255)] ToBoardNum:boardNum];
+                float alpha = 255.0;
+                if([[results allKeys] containsObject:@"alpha"])
+                {
+                    alpha = [[results valueForKey:@"alpha"] floatValue];
+                }
+                
+                if([[results allKeys] containsObject:@"red"] && [[results allKeys] containsObject:@"blue"]&& [[results allKeys] containsObject:@"green"])
+                {
+                    [[BoardsManager sharedManager] setLEDColor:
+                     [UIColor
+                      colorWithRed:([[results valueForKey:@"red"] floatValue]/255)
+                      green:([[results valueForKey:@"green"] floatValue]/255)
+                      blue:([[results valueForKey:@"blue"] floatValue]/255)
+                      alpha:(alpha/255)]
+                                                    ToBoardNum:boardNum];
+                }
             }
             else if([keyDirective isEqualToString:@"flashColor"])
             {
                 [[ConsoleManager sharedManager] log:keyDirective];
-                [[BoardsManager sharedManager] flashLEDWithColor:[UIColor colorWithRed:([[results valueForKey:@"red"] floatValue]/255) green:([[results valueForKey:@"green"] floatValue]/255) blue:([[results valueForKey:@"blue"] floatValue]/255) alpha:([[results valueForKey:@"alpha"] floatValue]/255)] andNumOfFlashes:[[results valueForKey:@"numberOfFlashes"] intValue] ToBoardNum:boardNum];
+                float alpha = 255.0;
+                if([[results allKeys] containsObject:@"alpha"])
+                {
+                    alpha = [[results valueForKey:@"alpha"] floatValue];
+                }
+                int numberOfFlashes = 1;
+                if([[results allKeys] containsObject:@"numberOfFlashes"])
+                {
+                    numberOfFlashes = [[results valueForKey:@"numberOfFlashes"] intValue];
+                }
+                
+                if([[results allKeys] containsObject:@"red"] && [[results allKeys] containsObject:@"blue"] && [[results allKeys] containsObject:@"green"])
+                {
+                    [[BoardsManager sharedManager] flashLEDWithColor:
+                     [UIColor
+                      colorWithRed:([[results valueForKey:@"red"] floatValue]/255)
+                      green:([[results valueForKey:@"green"] floatValue]/255)
+                      blue:([[results valueForKey:@"blue"] floatValue]/255)
+                      alpha:(alpha/255.0)]
+                                                     andNumOfFlashes:numberOfFlashes
+                                                          ToBoardNum:boardNum];
+                }
             }
             else if([keyDirective isEqualToString:@"makeVibrate"])
             {
@@ -93,6 +129,7 @@
         }
         else{
             [[ConsoleManager sharedManager] log:@"received wrong message"];
+            [webSocket send:@"{\"error\":\"missing BOARDNUMBER or MESSAGE\"}"];
             return;
         }
         /* proceed with results as you like; the assignment to

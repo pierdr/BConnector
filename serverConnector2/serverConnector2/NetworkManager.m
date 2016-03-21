@@ -45,8 +45,7 @@
 - (void)server:(PSWebSocketServer *)server webSocket:(PSWebSocket *)webSocket didReceiveMessage:(id)message {
     
     NSLog(@"Server websocket did receive message: %@", message);
-    
-    NSLog(@"%@",[webSocket copyStreamPropertyForKey:(NSString *)kCFStreamPropertySocketRemotePortNumber]);
+ 
     NSError *error = nil;
     NSData* data = [message dataUsingEncoding:NSUTF8StringEncoding];
     id object = [NSJSONSerialization
@@ -54,7 +53,10 @@
                  options:0
                  error:&error];
     
-    if(error) { /* JSON was malformed, act appropriately here */ }
+    if(error) {
+        /* JSON was malformed*/
+        [webSocket send:@"{\"error\":\"BAD JSON\"}"];
+         }
     
     // the originating poster wants to deal with dictionaries;
     // assuming you do too then something like this is the first
@@ -66,6 +68,11 @@
         {
             NSString* keyDirective      = [results valueForKey:@"message"];
             int boardNum                = [[results valueForKey:@"device"] intValue];
+            if(boardNum<0 || boardNum>MAX_NUM_OF_DEVICES)
+            {
+               [webSocket send:@"{\"error\":\"WRONG DEVICE NUM\"}"];
+                return;
+            }
             [[ConsoleManager sharedManager] log:keyDirective];
             
             if([keyDirective isEqualToString:@"readBatteryLevel"])
@@ -74,7 +81,7 @@
             }
             else if([keyDirective isEqualToString:@"setColor"])
             {
-                [[ConsoleManager sharedManager] log:keyDirective];
+                
                 float alpha = 255.0;
                 if([[results allKeys] containsObject:@"alpha"])
                 {
@@ -94,7 +101,7 @@
             }
             else if([keyDirective isEqualToString:@"flashColor"])
             {
-                [[ConsoleManager sharedManager] log:keyDirective];
+                
                 float alpha = 255.0;
                 if([[results allKeys] containsObject:@"alpha"])
                 {
@@ -120,12 +127,15 @@
             }
             else if([keyDirective isEqualToString:@"makeVibrate"])
             {
-                [[ConsoleManager sharedManager] log:keyDirective];
+               
+                int duration = 500;
+                if([[results allKeys] containsObject:@"duration"])
+                {
+                    duration = [ [results valueForKey:@"duration"] floatValue];
+                }
+                [[BoardsManager sharedManager] makeVibrateWithDuration:duration ToBoardNum:boardNum];
             }
-            else if([keyDirective isEqualToString:@"makeVibrateWithOptions"])
-            {
-                [[ConsoleManager sharedManager] log:keyDirective];
-            }
+           
         }
         else{
             [[ConsoleManager sharedManager] log:@"received wrong message"];

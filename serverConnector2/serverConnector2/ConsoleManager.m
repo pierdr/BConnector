@@ -28,7 +28,7 @@
     return self;
 }
 -(void)log:(NSString*)string{
-    NSLog(@"DEBUG: %@",string);
+   // NSLog(@"DEBUG: %@",string);
     for(int i=[_array count]-2;i>=0;i--)
     {
         [_array replaceObjectAtIndex:i+1 withObject:([_array objectAtIndex:i])];

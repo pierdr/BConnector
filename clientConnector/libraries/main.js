@@ -340,17 +340,22 @@ var  connector= (function () {
 			var message="{\"message\":\"releaseOrientation\"}";
 			this.sendMessage(message);
 		}
-		object.makeVibrate= function(deviceNumber){
+		object.makeVibrate= function(deviceNumber,duration){
 
-			if(deviceNumber=="" || deviceNumber==undefined)
+			if(deviceNumber==undefined)
 			{
-				deviceNumber =object.boardNumber;
+				console.console.warn("connector :: makevibrate :: no device number");
 			}
 			
 			var message;
-			
-			message="{\"message\":\"makeVibrate\",\"device\":\""+deviceNumber+"\"}";
-			
+			if(duration != "" && duration != undefined && duration != '')
+			{
+				message="{\"message\":\"makeVibrate\",\"device\":\""+deviceNumber+"\",\"duration\":\""+duration+"\"}";
+			}
+			else
+			{
+				message="{\"message\":\"makeVibrate\",\"device\":\""+deviceNumber+"\"}";
+			}
 			
 			this.sendMessage(message);
 		}

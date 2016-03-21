@@ -9,6 +9,13 @@
 #import "BoardsManager.h"
 #import <MetaWear/MetaWear.h>
 
+#define CLAMP(x, low, high) ({\
+__typeof__(x) __x = (x); \
+__typeof__(low) __low = (low);\
+__typeof__(high) __high = (high);\
+__x > __high ? __high : (__x < __low ? __low : __x);\
+})
+
 @implementation BoardsManager
 + (id)sharedManager {
     
@@ -70,17 +77,7 @@
     }];
     return self;
 }
--(void)setLEDColor:(UIColor*)color ToBoardNum:(int)boardNum{
-    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
-    [metaTmp.led setLEDColorAsync:color withIntensity:1.0];
-}
-- (void) flashLEDWithColor:(UIColor*)color  andNumOfFlashes:(int)numFlashes    ToBoardNum:(int)boardNum{
-    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
-    [metaTmp.led flashLEDColorAsync:color withIntensity:1.0 numberOfFlashes:numFlashes];
-}
-- (void) makeVibrateWithDuration:(int)duration   ToBoardNum:(int)boardNum{
-    
-}
+
 -(NSArray*)numBoardsConnected{
     
     int count =0;
@@ -106,5 +103,24 @@
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updateBoardsConnected" object:nil];
+}
+
+#pragma mark BOARD ACTUATOR METHODS
+//** LED SET **//
+-(void)setLEDColor:(UIColor*)color ToBoardNum:(int)boardNum{
+    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+    [metaTmp.led setLEDColorAsync:color withIntensity:1.0];
+}
+//** LED FLASH **//
+- (void) flashLEDWithColor:(UIColor*)color  andNumOfFlashes:(int)numFlashes    ToBoardNum:(int)boardNum{
+    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+    [metaTmp.led flashLEDColorAsync:color withIntensity:1.0 numberOfFlashes:numFlashes];
+}
+//** MAKE VIBRATE **//
+- (void) makeVibrateWithDuration:(int)duration   ToBoardNum:(int)boardNum{
+    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+    uint8_t dcycle =  248;
+    uint16_t pwidth = CLAMP(duration, 250, 3000);
+    [metaTmp.hapticBuzzer startHapticWithDutyCycleAsync:dcycle pulseWidth:pwidth completion:nil];
 }
 @end

@@ -16,21 +16,26 @@ function draw() {
   noStroke();
   if(millis()>1000 && connector.getInstance().status=="OPENED" && !turnLEDon)
   {
-  	console.log("sending");
+  	console.log("led");
   	turnLEDon = true;
   	connector.getInstance().setColor(0,0,128,0,255);
   }
 
   if(millis()>2000 && !flashLED) 
   {
+    console.log("flash");
     connector.getInstance().flashColor(2,128,0,128,3);
     flashLED = true;
 
   }
   if(millis()>5000 && !allOff) 
   {
+    console.log("vibrate");
+    connector.getInstance().makeVibrate(0);
     connector.getInstance().setColor(0,0,0,0,255);
-    connector.getInstance().setColor(2,0,0,0,255);
+/*
+    connector.getInstance().makeVibrate(2);
+    connector.getInstance().setColor(2,0,0,0,255);*/
     allOff = true;
 
   }

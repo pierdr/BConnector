@@ -9,6 +9,7 @@
 #define PORT 9092
 #import "NetworkManager.h"
 #import "ConsoleManager.h"
+#import "BoardsManager.h"
 
 @implementation NetworkManager
 
@@ -32,18 +33,20 @@
 #pragma mark - PSWebSocketServerDelegate
 
 - (void)serverDidStart:(PSWebSocketServer *)server {
-    NSLog(@"Server did start…");
+    //NSLog(@"Server did start…");
 }
 - (void)serverDidStop:(PSWebSocketServer *)server {
-    NSLog(@"Server did stop…");
+    //NSLog(@"Server did stop…");
 }
 - (BOOL)server:(PSWebSocketServer *)server acceptWebSocketWithRequest:(NSURLRequest *)request {
-    NSLog(@"Server should accept request: %@", request);
+   // NSLog(@"Server should accept request: %@", request);
     return YES;
 }
 - (void)server:(PSWebSocketServer *)server webSocket:(PSWebSocket *)webSocket didReceiveMessage:(id)message {
+    
     NSLog(@"Server websocket did receive message: %@", message);
     
+    NSLog(@"%@",[webSocket copyStreamPropertyForKey:(NSString *)kCFStreamPropertySocketRemotePortNumber]);
     NSError *error = nil;
     NSData* data = [message dataUsingEncoding:NSUTF8StringEncoding];
     id object = [NSJSONSerialization
@@ -61,14 +64,31 @@
         NSDictionary *results = object;
         if([[results allKeys] containsObject:@"message"])
         {
-            [[ConsoleManager sharedManager] log:[results valueForKey:@"message"]];
-            if([message isEqualToString:@"readBatteryLevel"])
+            NSString* keyDirective      = [results valueForKey:@"message"];
+            int boardNum                = [[results valueForKey:@"device"] intValue];
+            [[ConsoleManager sharedManager] log:keyDirective];
+            
+            if([keyDirective isEqualToString:@"readBatteryLevel"])
             {
                 
             }
-            else if([message isEqualToString:@""])
+            else if([keyDirective isEqualToString:@"setColor"])
             {
-                
+                [[ConsoleManager sharedManager] log:keyDirective];
+                [[BoardsManager sharedManager] setLEDColor:[UIColor colorWithRed:([[results valueForKey:@"red"] floatValue]/255) green:([[results valueForKey:@"green"] floatValue]/255) blue:([[results valueForKey:@"blue"] floatValue]/255) alpha:([[results valueForKey:@"alpha"] floatValue]/255)] ToBoardNum:boardNum];
+            }
+            else if([keyDirective isEqualToString:@"flashColor"])
+            {
+                [[ConsoleManager sharedManager] log:keyDirective];
+                [[BoardsManager sharedManager] flashLEDWithColor:[UIColor colorWithRed:([[results valueForKey:@"red"] floatValue]/255) green:([[results valueForKey:@"green"] floatValue]/255) blue:([[results valueForKey:@"blue"] floatValue]/255) alpha:([[results valueForKey:@"alpha"] floatValue]/255)] andNumOfFlashes:[[results valueForKey:@"numberOfFlashes"] intValue] ToBoardNum:boardNum];
+            }
+            else if([keyDirective isEqualToString:@"makeVibrate"])
+            {
+                [[ConsoleManager sharedManager] log:keyDirective];
+            }
+            else if([keyDirective isEqualToString:@"makeVibrateWithOptions"])
+            {
+                [[ConsoleManager sharedManager] log:keyDirective];
             }
         }
         else{
@@ -92,11 +112,11 @@
     
 }
 - (void)server:(PSWebSocketServer *)server webSocketDidOpen:(PSWebSocket *)webSocket {
-    NSLog(@"Server websocket did open");
+    //NSLog(@"Server websocket did open");
    
 }
 - (void)server:(PSWebSocketServer *)server webSocket:(PSWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean {
-    NSLog(@"Server websocket did close with code: %@, reason: %@, wasClean: %@", @(code), reason, @(wasClean));
+   // NSLog(@"Server websocket did close with code: %@, reason: %@, wasClean: %@", @(code), reason, @(wasClean));
 }
 - (void)server:(PSWebSocketServer *)server webSocket:(PSWebSocket *)webSocket didFailWithError:(NSError *)error {
     NSLog(@"Server websocket did fail with error: %@", error);

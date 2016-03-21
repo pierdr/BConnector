@@ -96,12 +96,17 @@
                                 <color key="textColor" white="0.18000000720000001" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fuy-ds-TAY">
+                                <rect key="frame" x="0.0" y="125" width="320" height="20"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
                         <outlet property="boardsConnectedLabel" destination="CRg-mf-kWZ" id="uhS-as-31P"/>
+                        <outlet property="boardsContainerBox" destination="fuy-ds-TAY" id="2XV-dR-NRf"/>
                         <outlet property="ipLabel" destination="ubu-K6-4qw" id="z3h-Eu-rCc"/>
                         <outletCollection property="labels" destination="hhW-6t-Lnn" id="KGY-Lv-cG0"/>
                         <outletCollection property="labels" destination="UBU-Om-jhE" id="bEI-UX-hvY"/>
@@ -112,6 +117,23 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="305" y="372"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="RQy-BX-fvR">
+            <objects>
+                <viewController id="9MQ-VF-NVA" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="KvN-de-MIa"/>
+                        <viewControllerLayoutGuide type="bottom" id="z0m-HU-SOG"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8SU-zj-V2g">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gYk-IK-buW" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
         </scene>
     </scenes>
 </document>

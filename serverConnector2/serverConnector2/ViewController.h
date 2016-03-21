@@ -14,6 +14,7 @@
 @property (nonatomic,strong)IBOutlet UILabel*                       ipLabel;
 @property (nonatomic,strong)IBOutletCollection(UILabel) NSArray*    labels;
 @property (nonatomic,strong)IBOutlet UILabel*                       boardsConnectedLabel;
+@property (nonatomic,strong)IBOutlet UIView*                        boardsContainerBox;
 
 @end
 

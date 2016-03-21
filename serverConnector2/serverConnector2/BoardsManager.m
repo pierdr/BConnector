@@ -70,7 +70,19 @@
     }];
     return self;
 }
--(int)numBoardsConnected{
+-(void)setLEDColor:(UIColor*)color ToBoardNum:(int)boardNum{
+    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+    [metaTmp.led setLEDColorAsync:color withIntensity:1.0];
+}
+- (void) flashLEDWithColor:(UIColor*)color  andNumOfFlashes:(int)numFlashes    ToBoardNum:(int)boardNum{
+    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+    [metaTmp.led flashLEDColorAsync:color withIntensity:1.0 numberOfFlashes:numFlashes];
+}
+- (void) makeVibrateWithDuration:(int)duration   ToBoardNum:(int)boardNum{
+    
+}
+-(NSArray*)numBoardsConnected{
+    
     int count =0;
     for (int i=0; i<[_bleModules count]; i++) {
         if([[_bleModules objectAtIndex:i] isKindOfClass:[MBLMetaWear class]])
@@ -84,8 +96,12 @@
                 [_bleModules replaceObjectAtIndex:i withObject:@""];
             }
         }
+        else
+        {
+            [_bleModules replaceObjectAtIndex:i withObject:@""];
+        }
     }
-    return count;
+    return [NSArray arrayWithArray:_bleModules];
 }
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {

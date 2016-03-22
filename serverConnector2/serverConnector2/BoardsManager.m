@@ -59,21 +59,6 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
                             [device addObserver:self forKeyPath:@"state" options:NSKeyValueObservingOptionNew context:nil];
 
                             [[NSNotificationCenter defaultCenter] postNotificationName:@"updateBoardsConnected" object:nil];
-                            
-                            //[device forgetDevice];
-                            /*
-                             bleDeviceMap[idNumberReference[device.identifier.UUIDString.UTF8String]]=device;
-                             numOfConnectedDevices=0;
-                             accessGranted[idNumberReference[device.identifier.UUIDString.UTF8String]] = false;
-                             
-                             // device.accelerometer.sampleFrequency = MBLAccelerometerSampleFrequency1_56Hz;
-                             
-                             for (int k=0; k<MAX_NUM_OF_DEVICES; k++) {
-                             if(bleDeviceMap[k]!=nil)
-                             {
-                             numOfConnectedDevices++;
-                             }
-                             }*/
                         }
                     }];
                 }
@@ -153,7 +138,7 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
     }
 }
 
-#pragma mark BOARD SENSOR METHODS
+#pragma mark BOARD SENSOR METHODS - REGISTER
 //** REGISTER BUTTON **//
 - (int) registerButtonForBoardNum:(int)boardNum withWebSocket:(PSWebSocket *)webSocket{
     if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
@@ -204,7 +189,7 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
         return 0;
     }
 }
-
+//** REGISTER ORIENTATION **//
 - (int) registerOrientation:(int)boardNum withWebSocket:(PSWebSocket *)webSocket{
     if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
     {
@@ -248,6 +233,7 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
         return 0;
     }
 }
+//** RELEASE ORIENTATION **//
 - (int) releaseOrientation: (int)boardNum{
     if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
     {
@@ -265,8 +251,248 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
     }
 }
 
-
-- (MBLMetaWear*) getBoardNum:(int)boardNum{
-    return [_bleModules objectAtIndex:boardNum];
+//** REGISTER TAP **//
+- (int) registerTap:(int)boardNum withWebSocket:(PSWebSocket *)webSocket{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+            accelerometerMMA8452Q.tapDetectionAxis = MBLAccelerometerAxisX;
+            accelerometerMMA8452Q.tapType = MBLAccelerometerTapTypeSingle;
+            
+            [accelerometerMMA8452Q.tapEvent startNotificationsWithHandlerAsync:^(MBLOrientationData * _Nullable obj, NSError * _Nullable error) {
+                if(error)
+                {
+                    NSLog(@"error %@",error);
+                }
+                else
+                {
+                    
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"tapEvent\"}"];
+                    [webSocket send:newMessage];
+                }
+            }];
+        }
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
+//** RELEASE TAP **//
+- (int) releaseTap: (int)boardNum{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+            [accelerometerMMA8452Q.tapEvent stopNotificationsAsync];
+        }
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+//** REGISTER DOUBLE TAP **//
+- (int) registerDoubleTap:(int)boardNum withWebSocket:(PSWebSocket *)webSocket{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+            accelerometerMMA8452Q.tapDetectionAxis = MBLAccelerometerAxisX;
+            accelerometerMMA8452Q.tapType = MBLAccelerometerTapTypeDouble;
+            
+            [accelerometerMMA8452Q.tapEvent startNotificationsWithHandlerAsync:^(MBLOrientationData * _Nullable obj, NSError * _Nullable error) {
+                if(error)
+                {
+                    NSLog(@"error %@",error);
+                }
+                else
+                {
+                    
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"tapEvent\"}"];
+                    [webSocket send:newMessage];
+                }
+            }];
+        }
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+//** RELEASE DOUBLE TAP **//
+- (int) releaseDoubleTap: (int)boardNum{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+            [accelerometerMMA8452Q.tapEvent stopNotificationsAsync];
+        }
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+//** REGISTER FREE FALL **//
+- (int) registerFreeFall:(int)boardNum withWebSocket:(PSWebSocket *)webSocket{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+           
+            [accelerometerMMA8452Q.freeFallEvent startNotificationsWithHandlerAsync:^(MBLOrientationData * _Nullable obj, NSError * _Nullable error) {
+                if(error)
+                {
+                    NSLog(@"error %@",error);
+                }
+                else
+                {
+                    
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"freeFallEvent\"}"];
+                    [webSocket send:newMessage];
+                }
+            }];
+        }
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+//** RELEASE FREE FALL **//
+- (int) releaseFreeFall: (int)boardNum{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+            [accelerometerMMA8452Q.freeFallEvent stopNotificationsAsync];
+        }
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+//** REGISTER SHAKE **//
+- (int) registerShake:(int)boardNum withWebSocket:(PSWebSocket *)webSocket{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+            
+            [accelerometerMMA8452Q.shakeEvent startNotificationsWithHandlerAsync:^(MBLOrientationData * _Nullable obj, NSError * _Nullable error) {
+                if(error)
+                {
+                    NSLog(@"error %@",error);
+                }
+                else
+                {
+                    
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"shakeEvent\"}"];
+                    [webSocket send:newMessage];
+                }
+            }];
+        }
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+//** RELEASE SHAKE **//
+- (int) releaseShake: (int)boardNum{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+            [accelerometerMMA8452Q.shakeEvent stopNotificationsAsync];
+        }
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+#pragma mark BOARD SENSORS METHODS - GET
+
+//** GET TEMPERATURE **//
+- (int) getTemperature:(int)boardNum withWebSocket:(PSWebSocket *)webSocket{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        [[metaTmp.temperature.onboardThermistor readAsync] success:^(MBLNumericData * _Nonnull result) {
+            
+            NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"temperatureGet\",\"value\":\"%f\"}",result.value.floatValue];
+            [webSocket send:newMessage];
+        }];
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+//** GET RSSI **//
+- (int) getRSSI:(int)boardNum withWebSocket:(PSWebSocket* )webSocket{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        [metaTmp readRSSIWithHandler:^(NSNumber *number, NSError *error) {
+             NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"rssiGet\",\"value\":\"%f\"}",[number floatValue] ];
+            [webSocket send:newMessage];
+        }];
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+//** GET BATTERY LEVEL **//
+- (int) getBatteryLevel:(int) boardNum withWebSocket:(PSWebSocket *)webSocket{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        [metaTmp readBatteryLifeWithHandler:^(NSNumber *number, NSError *error) {
+            NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"batteryGet\",\"value\":\"%f\"}",[number floatValue] ];
+            [webSocket send:newMessage];
+        }];
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 @end

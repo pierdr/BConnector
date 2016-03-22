@@ -39,8 +39,15 @@
 - (int) registerDoubleTap:(int)boardNum withWebSocket:(PSWebSocket *)webSocket;
 - (int) releaseDoubleTap: (int)boardNum;
 
-- (int) registerTemperature:(int)boardNum withWebSocket:(PSWebSocket *)webSocket;
-- (int) releaseTemperature: (int)boardNum;
+- (int) registerFreeFall:(int)boardNum withWebSocket:(PSWebSocket *)webSocket;
+- (int) releaseFreeFall: (int)boardNum;
+
+- (int) registerShake:(int)boardNum withWebSocket:(PSWebSocket *)webSocket;
+- (int) releaseShake: (int)boardNum;
+
+- (int) getTemperature:(int)boardNum withWebSocket:(PSWebSocket *)webSocket;
+- (int) getRSSI:(int)boardNum withWebSocket:(PSWebSocket* )webSocket;
+- (int) getBatteryLevel:(int) boardNum withWebSocket:(PSWebSocket *)webSocket;
 
 
 @end

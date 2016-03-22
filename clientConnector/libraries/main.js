@@ -93,6 +93,25 @@ var  connector= (function () {
 					{
 						object.rssi = messageObject["value"];
 					}
+					else if(messageObject["message"] == "temperatureGet")
+					{
+						object.temperature = messageObject["value"];
+					}
+					else if(messageObject["message"] == "tapEvent")
+					{
+						object.tap = true;
+						window.setTimeout(function(){
+								object.tap = false;
+						},100);
+
+						try{
+					        tapped();
+						}
+						catch(e)
+						{
+							
+						}
+					}
 					else if(messageObject["message"] == "batteryLevel")
 					{
 						object.batteryLevel = messageObject["value"];
@@ -117,24 +136,6 @@ var  connector= (function () {
 
 						try{
 					        orientationChanged(object.orientation);
-						}
-						catch(e)
-						{
-							
-						}
-					}else if(messageObject["message"] == "temperatureEvent")
-					{
-						object.temperature = messageObject["value"];
-					}
-					else if(messageObject["message"] == "tapEvent")
-					{
-						object.tap = true;
-						window.setTimeout(function(){
-								object.tap = false;
-						},100);
-
-						try{
-					        tapped();
 						}
 						catch(e)
 						{

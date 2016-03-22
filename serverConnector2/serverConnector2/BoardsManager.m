@@ -2,12 +2,12 @@
 //  BoardsManager.m
 //  serverConnector2
 //
-//  Created by local on 3/16/16.
+//  Created by Pierluigi Dalla Rosa on 3/16/16.
 //  Copyright © 2016 binaryfutures. All rights reserved.
 //
 
 #import "BoardsManager.h"
-#import <MetaWear/MetaWear.h>
+
 
 #define CLAMP(x, low, high) ({\
 __typeof__(x) __x = (x); \
@@ -46,6 +46,11 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
                     [device connectWithHandler:^(NSError *error) {
                         if (!error) {
                             
+                            [device rememberDevice];
+                            if (device.isGuestConnection) {
+                               // [device setConfiguration:nil handler:nil];
+                                NSLog(@"it's guest");
+                            }
                             // Hooray! We connected to a MetaWear board, so flash its LED!
                             [device.led flashLEDColorAsync:[UIColor greenColor] withIntensity:1.0 numberOfFlashes:2];
                             [_bleModules replaceObjectAtIndex:i withObject:device];
@@ -107,20 +112,161 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
 
 #pragma mark BOARD ACTUATOR METHODS
 //** LED SET **//
--(void)setLEDColor:(UIColor*)color ToBoardNum:(int)boardNum{
-    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
-    [metaTmp.led setLEDColorAsync:color withIntensity:1.0];
+-(int)setLEDColor:(UIColor*)color ToBoardNum:(int)boardNum{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        [metaTmp.led setLEDColorAsync:color withIntensity:1.0];
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 //** LED FLASH **//
-- (void) flashLEDWithColor:(UIColor*)color  andNumOfFlashes:(int)numFlashes    ToBoardNum:(int)boardNum{
-    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
-    [metaTmp.led flashLEDColorAsync:color withIntensity:1.0 numberOfFlashes:numFlashes];
+- (int) flashLEDWithColor:(UIColor*)color  andNumOfFlashes:(int)numFlashes    ToBoardNum:(int)boardNum{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        [metaTmp.led flashLEDColorAsync:color withIntensity:1.0 numberOfFlashes:numFlashes];
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 //** MAKE VIBRATE **//
-- (void) makeVibrateWithDuration:(int)duration   ToBoardNum:(int)boardNum{
-    MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
-    uint8_t dcycle =  248;
-    uint16_t pwidth = CLAMP(duration, 250, 3000);
-    [metaTmp.hapticBuzzer startHapticWithDutyCycleAsync:dcycle pulseWidth:pwidth completion:nil];
+- (int) makeVibrateWithDuration:(int)duration   ToBoardNum:(int)boardNum{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        uint8_t dcycle =  248;
+        uint16_t pwidth = CLAMP(duration, 250, 3000);
+        [metaTmp.hapticBuzzer startHapticWithDutyCycleAsync:dcycle pulseWidth:pwidth completion:nil];
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+#pragma mark BOARD SENSOR METHODS
+//** REGISTER BUTTON **//
+- (int) registerButtonForBoardNum:(int)boardNum withWebSocket:(PSWebSocket *)webSocket{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        [metaTmp.mechanicalSwitch.switchUpdateEvent startNotificationsWithHandlerAsync:^(MBLNumericData *obj, NSError *error) {
+            NSLog(@"Switch Changed: %@", obj);
+        }];
+       /* [metaTmp.mechanicalSwitch.switchUpdateEvent startNotificationsWithHandlerAsync:^(MBLNumericData * _Nullable obj, NSError * _Nullable error) {
+            if(error)
+            {
+                NSLog(@"error %@",error);
+                [metaTmp connectWithHandler:^(NSError *error){
+                    if(!error)
+                    {
+                        NSLog(@"connected again");
+                        [self registerButtonForBoardNum:boardNum withWebSocket:webSocket];
+                    
+                    }
+                    else {
+                        NSLog(@"connection error %@",error);
+                    }
+                    
+                }];
+                return;
+            }
+            
+            NSString* newMessage=[NSString stringWithFormat:@"{\"message\":\"buttonEvent\",\"value\":\"%d\"}",[obj.value integerValue]];
+                [webSocket send:newMessage];
+        }];*/
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+//** RELEASE BUTTON **//
+- (int) releaseButtonForBoardNum: (int)boardNum{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        [metaTmp.mechanicalSwitch.switchUpdateEvent stopNotificationsAsync];
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+- (int) registerOrientation:(int)boardNum withWebSocket:(PSWebSocket *)webSocket{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+            [accelerometerMMA8452Q.orientationEvent startNotificationsWithHandlerAsync:^(MBLOrientationData * _Nullable obj, NSError * _Nullable error) {
+                if(error)
+                {
+                    NSLog(@"error %@",error);
+                }
+                else
+                {
+                    MBLOrientationData *data = obj;
+                    NSString* orientation = @"";
+                    
+                    switch (data.orientation) {
+                        case MBLAccelerometerOrientationPortrait:
+                            orientation = @"LandscapeLeft";
+                            break;
+                        case MBLAccelerometerOrientationPortraitUpsideDown:
+                            orientation = @"LandscapeRight";
+                            break;
+                        case MBLAccelerometerOrientationLandscapeLeft:
+                            orientation = @"PortraitUpsideDown";
+                            break;
+                        case MBLAccelerometerOrientationLandscapeRight:
+                            orientation = @"Portrait";
+                            break;
+                    }
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"orientationEvent\",\"value\":\"%@\"}",orientation];
+                    [webSocket send:newMessage];
+                }
+            }];
+        }
+        
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+- (int) releaseOrientation: (int)boardNum{
+    if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
+    {
+        MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
+        if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerBMI160 class]]) {
+            MBLAccelerometerBMI160 *accelerometerBMI160 = (MBLAccelerometerBMI160 *)metaTmp.accelerometer;
+             [accelerometerBMI160.orientationEvent stopNotificationsAsync];
+        }
+       
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
+- (MBLMetaWear*) getBoardNum:(int)boardNum{
+    return [_bleModules objectAtIndex:boardNum];
 }
 @end

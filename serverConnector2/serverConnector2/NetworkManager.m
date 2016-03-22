@@ -2,7 +2,7 @@
 //  NetworkManager.m
 //  serverConnector2
 //
-//  Created by local on 3/16/16.
+//  Created by Pierluigi Dalla Rosa on 3/16/16.
 //  Copyright © 2016 binaryfutures. All rights reserved.
 //
 
@@ -68,6 +68,7 @@
         {
             NSString* keyDirective      = [results valueForKey:@"message"];
             int boardNum                = [[results valueForKey:@"device"] intValue];
+            int success                 = -1;
             if(boardNum<0 || boardNum>MAX_NUM_OF_DEVICES)
             {
                [webSocket send:@"{\"error\":\"WRONG DEVICE NUM\"}"];
@@ -90,7 +91,7 @@
                 
                 if([[results allKeys] containsObject:@"red"] && [[results allKeys] containsObject:@"blue"]&& [[results allKeys] containsObject:@"green"])
                 {
-                    [[BoardsManager sharedManager] setLEDColor:
+                   success = [[BoardsManager sharedManager] setLEDColor:
                      [UIColor
                       colorWithRed:([[results valueForKey:@"red"] floatValue]/255)
                       green:([[results valueForKey:@"green"] floatValue]/255)
@@ -115,7 +116,7 @@
                 
                 if([[results allKeys] containsObject:@"red"] && [[results allKeys] containsObject:@"blue"] && [[results allKeys] containsObject:@"green"])
                 {
-                    [[BoardsManager sharedManager] flashLEDWithColor:
+                   success = [[BoardsManager sharedManager] flashLEDWithColor:
                      [UIColor
                       colorWithRed:([[results valueForKey:@"red"] floatValue]/255)
                       green:([[results valueForKey:@"green"] floatValue]/255)
@@ -133,10 +134,31 @@
                 {
                     duration = [ [results valueForKey:@"duration"] floatValue];
                 }
-                [[BoardsManager sharedManager] makeVibrateWithDuration:duration ToBoardNum:boardNum];
+                success = [[BoardsManager sharedManager] makeVibrateWithDuration:duration ToBoardNum:boardNum];
             }
-           
+            else if([keyDirective isEqualToString:@"registerButton"])
+            {
+                success = [[BoardsManager sharedManager] registerButtonForBoardNum:boardNum withWebSocket:webSocket];
+            }
+            else if([keyDirective isEqualToString:@"releaseButton"])
+            {
+                success = [[BoardsManager sharedManager] releaseButtonForBoardNum:boardNum];
+            }
+            else if([keyDirective isEqualToString:@"registerOrientation"])
+            {
+                success = [[BoardsManager sharedManager] registerOrientation:boardNum withWebSocket:webSocket];
+            }
+            else if([keyDirective isEqualToString:@"releaseOrientation"])
+            {
+                success = [[BoardsManager sharedManager] releaseOrientation:boardNum];
+            }
+            
+            if(!success)
+            {
+                [webSocket send:@"{\"error\":\"wrong BOARDNUMBER\"}"];
+            }
         }
+       
         else{
             [[ConsoleManager sharedManager] log:@"received wrong message"];
             [webSocket send:@"{\"error\":\"missing BOARDNUMBER or MESSAGE\"}"];

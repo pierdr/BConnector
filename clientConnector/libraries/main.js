@@ -1,6 +1,7 @@
 /*******   
-Made by Tellart 
-	prepared for Resonate 2015
+Started by Pierluigi Dalla Rosa @Tellart for Resonate 2015
+
+Further developed by Pierluigi Dalla Rosa @binaryfutures
 *******/
 
 
@@ -237,9 +238,9 @@ var  connector= (function () {
 		}
 		object.readBatteryLevel = function(deviceNumber)
 		{
-			if(deviceNumber=="" || deviceNumber==undefined)
+			if(deviceNumber==undefined)
 			{
-				deviceNumber =object.boardNumber;
+				console.console.warn("connector :: readBatteryLevel :: no device number");
 			}
 			var message="{\"message\":\"readBatteryLevel\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
@@ -247,9 +248,9 @@ var  connector= (function () {
 		}
 		object.readRSSI = function(deviceNumber)
 		{
-			if(deviceNumber=="" || deviceNumber==undefined)
+			if(deviceNumber==undefined)
 			{
-				deviceNumber =object.boardNumber;
+				console.console.warn("connector :: readRSSI :: no device number");
 			}
 			var message="{\"message\":\"readRSSI\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
@@ -257,19 +258,20 @@ var  connector= (function () {
 		}
 		object.registerButton = function(deviceNumber)
 		{
-			if(deviceNumber=="" || deviceNumber==undefined)
+			if(deviceNumber==undefined)
 			{
-				deviceNumber =object.boardNumber;
+				console.console.warn("connector :: registerButton :: no device number");
 			}
 			var message="{\"message\":\"registerButton\",\"device\":\""+deviceNumber+"\"}";
+			this.buttonRegistered = true;
 			this.sendMessage(message);
 			
 		}
 		object.registerTemperature = function(deviceNumber)
 		{
-			if(deviceNumber=="" || deviceNumber==undefined)
+			if(deviceNumber==undefined)
 			{
-				deviceNumber =object.boardNumber;
+				console.console.warn("connector :: registerTemperature :: no device number");
 			}
 			var message="{\"message\":\"registerTemperature\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
@@ -285,9 +287,9 @@ var  connector= (function () {
 		
 		object.registerShake = function(deviceNumber)
 		{
-			if(deviceNumber=="" || deviceNumber==undefined)
+			if(deviceNumber==undefined)
 			{
-				deviceNumber =object.boardNumber;
+				console.console.warn("connector :: registerShake :: no device number");
 			}
 			var message="{\"message\":\"registerShake\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
@@ -301,9 +303,9 @@ var  connector= (function () {
 		}
 		object.registerFreeFall = function(deviceNumber)
 		{
-			if(deviceNumber=="" || deviceNumber==undefined)
+			if(deviceNumber==undefined)
 			{
-				deviceNumber =object.boardNumber;
+				console.console.warn("connector :: registerFreeFall :: no device number");
 			}
 			var message="{\"message\":\"registerFreeFall\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
@@ -314,9 +316,9 @@ var  connector= (function () {
 		}
 		object.registerTap = function(deviceNumber)
 		{
-			if(deviceNumber=="" || deviceNumber==undefined)
+			if(deviceNumber==undefined)
 			{
-				deviceNumber =object.boardNumber;
+				console.console.warn("connector :: registerTap :: no device number");
 			}
 			var message="{\"message\":\"registerTap\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
@@ -328,9 +330,9 @@ var  connector= (function () {
 		}
 		object.registerOrientation = function(deviceNumber)
 		{
-			if(deviceNumber=="" || deviceNumber==undefined)
+			if(deviceNumber==undefined)
 			{
-				deviceNumber =object.boardNumber;
+				console.console.warn("connector :: registerOrientation :: no device number");
 			}
 			var message="{\"message\":\"registerOrientation\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
@@ -361,7 +363,8 @@ var  connector= (function () {
 		}
 		object.makeVibrateWithOptions= function(length,amplitude,deviceNumber){
 
-			
+			console.console.warn("connector :: makeVibrateWithOptions not supoorted");
+			return;
 			if(length=="" || length==undefined)
 			{
 				length=500;
@@ -382,6 +385,7 @@ var  connector= (function () {
 		object.releaseButton= function(){
 			var message="{\"message\":\"releaseButton\"}";
 			this.sendMessage(message);
+			this.buttonRegistered = false;
 		}
 		
 		object.sendMessage = function(message){

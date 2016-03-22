@@ -2,10 +2,12 @@
 var turnLEDon = false;
 var flashLED  = false;
 var allOff    = false;
+var registeredButton = false; 
+var boardNumber = -1;
 
 function setup() {
    createCanvas(windowWidth, windowHeight);
-   connector.getInstance().setupSocket("192.168.1.6:9092");
+   connector.getInstance().setupSocket("172.16.3.218:9092");
    
 }
 
@@ -14,7 +16,23 @@ function draw() {
   
   text("hello world",20,30);
   noStroke();
-  if(millis()>1000 && connector.getInstance().status=="OPENED" && !turnLEDon)
+  
+  if(connector.getInstance().status=="OPENED" && !registeredButton){
+
+      connector.getInstance().registerOrientation(0);
+      registeredButton=true;
+  }
+  if(connector.getInstance().status=="OPENED")
+  {
+    if(connector.getInstance().buttonRegistered)
+    {
+      if(connector.getInstance().buttonState)
+      {
+          rect(30,20,100,100);
+      }
+    }
+  }
+/*  if(millis()>1000 && connector.getInstance().status=="OPENED" && !turnLEDon)
   {
   	console.log("led");
   	turnLEDon = true;
@@ -35,10 +53,10 @@ function draw() {
     connector.getInstance().setColor(0,0,0,0,255);
 /*
     connector.getInstance().makeVibrate(2);
-    connector.getInstance().setColor(2,0,0,0,255);*/
+    connector.getInstance().setColor(2,0,0,0,255);
     allOff = true;
 
-  }
+  }*/
 
   
 }

@@ -2,7 +2,7 @@
 //  AppDelegate.h
 //  serverConnector2
 //
-//  Created by local on 3/16/16.
+//  Created by Pierluigi Dalla Rosa on 3/16/16.
 //  Copyright © 2016 binaryfutures. All rights reserved.
 //
 

@@ -128,7 +128,6 @@
             }
             else if([keyDirective isEqualToString:@"makeVibrate"])
             {
-               
                 int duration = 500;
                 if([[results allKeys] containsObject:@"duration"])
                 {
@@ -152,6 +151,51 @@
             {
                 success = [[BoardsManager sharedManager] releaseOrientation:boardNum];
             }
+            else if([keyDirective isEqualToString:@"registerTap"])
+            {
+                success = [[BoardsManager sharedManager] registerTap:boardNum withWebSocket:webSocket];
+            }
+            else if([keyDirective isEqualToString:@"releaseTap"])
+            {
+                success = [[BoardsManager sharedManager] releaseTap:boardNum];
+            }
+            else if([keyDirective isEqualToString:@"registerDoubleTap"])
+            {
+                success = [[BoardsManager sharedManager] registerDoubleTap:boardNum withWebSocket:webSocket];
+            }
+            else if([keyDirective isEqualToString:@"releaseDoubleTap"])
+            {
+                success = [[BoardsManager sharedManager] releaseDoubleTap:boardNum];
+            }
+            else if([keyDirective isEqualToString:@"registerFreeFall"])
+            {
+                success = [[BoardsManager sharedManager] registerFreeFall:boardNum withWebSocket:webSocket];
+            }
+            else if([keyDirective isEqualToString:@"releaseFreeFall"])
+            {
+                success = [[BoardsManager sharedManager] releaseFreeFall:boardNum];
+            }
+            else if([keyDirective isEqualToString:@"registerShake"])
+            {
+                success = [[BoardsManager sharedManager] registerShake:boardNum withWebSocket:webSocket];
+            }
+            else if([keyDirective isEqualToString:@"releaseShake"])
+            {
+                success = [[BoardsManager sharedManager] releaseShake:boardNum];
+            }
+            else if([keyDirective isEqualToString:@"getBatteryLevel"])
+            {
+                success = [[BoardsManager sharedManager] getBatteryLevel:boardNum withWebSocket:webSocket];
+            }
+            else if([keyDirective isEqualToString:@"getRSSI"])
+            {
+                success = [[BoardsManager sharedManager] getRSSI:boardNum withWebSocket:webSocket];
+            }
+            else if([keyDirective isEqualToString:@"getTemperature"])
+            {
+                success = [[BoardsManager sharedManager] getTemperature:boardNum withWebSocket:webSocket];
+            }
+            
             
             if(!success)
             {

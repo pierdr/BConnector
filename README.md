@@ -1,7 +1,10 @@
-#Designing connected experiences with BLE 
+#BF Educational kit
+##### Teaching prototyping for **interactive spaces** and **smart objects** 
 
 
-[Workshop description](http://resonate.io/2015/education/designing-connected-experiences-with-ble/)
+This kit is meant to make simple for designers and developers the access to physical prototyping. Bluetooth low energy is becoming the common standard for low power physical computing, at the moment the entry barriers for touching this technology are quite high because of it's low level access from smartphone devices. 
+
+The kit allows the access of multible boards simply from web apps.
 
 
 ## How To Get Started
@@ -140,6 +143,13 @@ You can register to observe a sensor, when done you can release it.
 `isFalling()`
 
 `buttonPressed()`
+
+
+
+The project is forked from *designing connected experiences with ble* hosted by Tellart during Resonate 2015.
+
+[Workshop description](http://resonate.io/2015/education/designing-connected-experiences-with-ble/)
+
 
 
 

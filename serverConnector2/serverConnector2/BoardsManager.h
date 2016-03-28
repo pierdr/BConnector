@@ -22,11 +22,12 @@
 - (id)init;
 - (NSArray*)numBoardsConnected;
 
-
+//** SET **//
 - (int) setLEDColor:(UIColor*)color             ToBoardNum:(int)boardNum;
 - (int) flashLEDWithColor:(UIColor*)color  andNumOfFlashes:(int)numFlashes    ToBoardNum:(int)boardNum;
 - (int) makeVibrateWithDuration:(int)duration   ToBoardNum:(int)boardNum;
 
+//** REGISTER **//
 - (int) registerButtonForBoardNum:(int)boardNum withWebSocket:(PSWebSocket *)webSocket;
 - (int) releaseButtonForBoardNum: (int)boardNum;
 
@@ -45,6 +46,7 @@
 - (int) registerShake:(int)boardNum withWebSocket:(PSWebSocket *)webSocket;
 - (int) releaseShake: (int)boardNum;
 
+//** GET **//
 - (int) getTemperature:(int)boardNum withWebSocket:(PSWebSocket *)webSocket;
 - (int) getRSSI:(int)boardNum withWebSocket:(PSWebSocket* )webSocket;
 - (int) getBatteryLevel:(int) boardNum withWebSocket:(PSWebSocket *)webSocket;

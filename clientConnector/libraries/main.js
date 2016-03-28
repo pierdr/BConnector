@@ -89,7 +89,7 @@ var  connector= (function () {
 						}
 						return;
 					}
-					else if(messageObject["message"] == "RSSI")
+					else if(messageObject["message"] == "rssiGet")
 					{
 						object.rssi = messageObject["value"];
 					}
@@ -112,7 +112,7 @@ var  connector= (function () {
 							
 						}
 					}
-					else if(messageObject["message"] == "batteryLevel")
+					else if(messageObject["message"] == "batteryGet")
 					{
 						object.batteryLevel = messageObject["value"];
 					}
@@ -225,35 +225,39 @@ var  connector= (function () {
 		}
 		object.grantAccess = function()
 		{
-			
+			console.warn("connector :: grantAccess :: discontinued");
+			return;
 			var message="{\"message\":\"grantAccess\"}";
 			this.sendMessage(message);
 			
 		}
 		object.revokeAccess = function()
 		{
-			
+			console.warn("connector :: revokeAccess :: discontinued");
+			return;
 			var message="{\"message\":\"revokeAccess\"}";
 			this.sendMessage(message);
 			
 		}
-		object.readBatteryLevel = function(deviceNumber)
+		object.getBatteryLevel = function(deviceNumber)
 		{
 			if(deviceNumber==undefined)
 			{
-				console.console.warn("connector :: readBatteryLevel :: no device number");
+				console.warn("connector :: readBatteryLevel :: no device number");
+				return;
 			}
-			var message="{\"message\":\"readBatteryLevel\",\"device\":\""+deviceNumber+"\"}";
+			var message="{\"message\":\"getBatteryLevel\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 			
 		}
-		object.readRSSI = function(deviceNumber)
+		object.getRSSI = function(deviceNumber)
 		{
 			if(deviceNumber==undefined)
 			{
-				console.console.warn("connector :: readRSSI :: no device number");
+				console.warn("connector :: readRSSI :: no device number");
+				return;
 			}
-			var message="{\"message\":\"readRSSI\",\"device\":\""+deviceNumber+"\"}";
+			var message="{\"message\":\"getRSSI\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 			
 		}
@@ -261,26 +265,30 @@ var  connector= (function () {
 		{
 			if(deviceNumber==undefined)
 			{
-				console.console.warn("connector :: registerButton :: no device number");
+				console.warn("connector :: registerButton :: no device number");
+				return;
 			}
 			var message="{\"message\":\"registerButton\",\"device\":\""+deviceNumber+"\"}";
 			this.buttonRegistered = true;
 			this.sendMessage(message);
 			
 		}
-		object.registerTemperature = function(deviceNumber)
+		object.getTemperature = function(deviceNumber)
 		{
 			if(deviceNumber==undefined)
 			{
-				console.console.warn("connector :: registerTemperature :: no device number");
+				console.warn("connector :: getTemperature :: no device number");
+				return;
 			}
-			var message="{\"message\":\"registerTemperature\",\"device\":\""+deviceNumber+"\"}";
+			var message="{\"message\":\"getTemperature\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 			object.temperatureRegistered = true;
 
 		}
 		object.releaseTemperature= function(){
 			
+			console.warn("connector :: releaseTemperature :: discontinued");
+			return;
 			var message="{\"message\":\"releaseTemperature\"}";
 			this.sendMessage(message);
 			object.temperatureRegistered = false;
@@ -290,64 +298,81 @@ var  connector= (function () {
 		{
 			if(deviceNumber==undefined)
 			{
-				console.console.warn("connector :: registerShake :: no device number");
+				console.warn("connector :: registerShake :: no device number");
+				return;
 			}
 			var message="{\"message\":\"registerShake\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 
 		}
 
-		object.releaseShake= function(){
+		object.releaseShake= function(deviceNumber){
 
-			var message="{\"message\":\"releaseShake\"}";
+			var message="{\"message\":\"releaseShake\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 		}
 		object.registerFreeFall = function(deviceNumber)
 		{
 			if(deviceNumber==undefined)
 			{
-				console.console.warn("connector :: registerFreeFall :: no device number");
+				console.warn("connector :: registerFreeFall :: no device number");
 			}
 			var message="{\"message\":\"registerFreeFall\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 		}
-		object.releaseFreeFall= function(){
-			var message="{\"message\":\"releaseFreeFall\"}";
+		object.releaseFreeFall= function(deviceNumber){
+			var message="{\"message\":\"releaseFreeFall\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 		}
 		object.registerTap = function(deviceNumber)
 		{
 			if(deviceNumber==undefined)
 			{
-				console.console.warn("connector :: registerTap :: no device number");
+				console.warn("connector :: registerTap :: no device number");
 			}
 			var message="{\"message\":\"registerTap\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 		}
-		object.releaseTap= function(){
+		object.releaseTap= function(deviceNumber){
 			
-			var message="{\"message\":\"releaseTap\"}";
+			var message="{\"message\":\"releaseTap\",\"device\":\""+deviceNumber+"\"}";
+			this.sendMessage(message);
+		}
+		object.registerDoubleTap = function(deviceNumber)
+		{
+			if(deviceNumber==undefined)
+			{
+				console.warn("connector :: registerDoubleTap :: no device number");
+			}
+			var message="{\"message\":\"registerDoubleTap\",\"device\":\""+deviceNumber+"\"}";
+			this.sendMessage(message);
+		}
+		object.releaseDoubleTap= function(deviceNumber){
+			
+			var message="{\"message\":\"releaseDoubleTap\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 		}
 		object.registerOrientation = function(deviceNumber)
 		{
 			if(deviceNumber==undefined)
 			{
-				console.console.warn("connector :: registerOrientation :: no device number");
+				console.warn("connector :: registerOrientation :: no device number");
 			}
 			var message="{\"message\":\"registerOrientation\",\"device\":\""+deviceNumber+"\"}";
+			object.orientationRegistered = true;
 			this.sendMessage(message);
 		}
-		object.releaseOrientation= function(){
+		object.releaseOrientation= function(deviceNumber){
 			
-			var message="{\"message\":\"releaseOrientation\"}";
+			var message="{\"message\":\"releaseOrientation\",\"device\":\""+deviceNumber+"\"}";
+			object.orientationRegistered = false;
 			this.sendMessage(message);
 		}
 		object.makeVibrate= function(deviceNumber,duration){
 
 			if(deviceNumber==undefined)
 			{
-				console.console.warn("connector :: makevibrate :: no device number");
+				console.warn("connector :: makevibrate :: no device number");
 			}
 			
 			var message;
@@ -364,7 +389,7 @@ var  connector= (function () {
 		}
 		object.makeVibrateWithOptions= function(length,amplitude,deviceNumber){
 
-			console.console.warn("connector :: makeVibrateWithOptions not supoorted");
+			console.warn("connector :: makeVibrateWithOptions not supoorted");
 			return;
 			if(length=="" || length==undefined)
 			{
@@ -383,8 +408,8 @@ var  connector= (function () {
 			this.sendMessage(message);
 		}
 
-		object.releaseButton= function(){
-			var message="{\"message\":\"releaseButton\"}";
+		object.releaseButton= function(deviceNumeber){
+			var message="{\"message\":\"releaseButton\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 			this.buttonRegistered = false;
 		}

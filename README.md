@@ -13,14 +13,14 @@ The kit allows the access of multible boards simply from web apps.
 Git user can follow these steps in the terminal:
 
 - navigate to the location where you want to copy the repository;
-- type ```git clone https://github.com/Tellart/Resonate2015.git```
+- type ```git clone https://github.com/pierdr/BFConnector.git```
 
 
 otherwhise just download this repo from github.
 
 ####Run the server
 ######Mac OS X 
-- Navigate to client connector ```cd Resonate2015/clientConnector```
+- Navigate to client connector ```cd BFConnector/clientConnector```
 - Start the webserver with the command: ```python -m SimpleHTTPServer 8000```
 - Open your browser and go to the url ```http://localhost:8000/sample/``` to check that is working.
 

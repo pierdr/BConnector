@@ -144,7 +144,8 @@ You can register to observe a sensor, when done you can release it.
 
 `buttonPressed()`
 
-
+--
+###History
 
 The project is forked from *designing connected experiences with ble* hosted by Tellart during Resonate 2015.
 

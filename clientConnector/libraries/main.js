@@ -439,6 +439,9 @@ var  connector= (function () {
     };
 })();
 
+window.BFc = connector.getInstance();
+
+
 function clamp(value, minVal, maxVal)
 {
 	if(value<minVal)

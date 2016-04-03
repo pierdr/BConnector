@@ -483,6 +483,9 @@ var gemObject = function(gemNumber)
     this.tapRegistered 		 	= false;
     this.tap					= false;
 
+    this.doubleTapRegistered 	= false;
+    this.tap					= false;
+
     this.shakeRegistered		= false;
     this.shaked 				= false;
 
@@ -529,23 +532,23 @@ var gemObject = function(gemNumber)
 
     //*** SENSORS' METHODS ***//
     /**TAP**/
-    this.registerTap 			= function(){BFc.registerTap(this.gemNum);}
-    this.releaseTap 			= function(){BFc.releaseTap(this.gemNum);}
+    this.registerTap 			= function(){this.tapRegistered=true;     ;BFc.registerTap(this.gemNum);}
+    this.releaseTap 			= function(){this.tapRegistered=false;     ;BFc.releaseTap(this.gemNum);}
     /**DOUBLETAP**/
-    this.registerDoubleTap 		= function(){BFc.registerDoubleTap(this.gemNum);}
-    this.releaseDoubleTap 		= function(){BFc.releaseDoubleTap(this.gemNum);}
+    this.registerDoubleTap 		= function(){this.doubleTapRegistered =true;    ;BFc.registerDoubleTap(this.gemNum);}
+    this.releaseDoubleTap 		= function(){this.doubleTapRegistered =false;     ;BFc.releaseDoubleTap(this.gemNum);}
     /**ORIENTATION**/
-    this.registerOrientation 	= function() {BFc.registerOrientation(this.gemNum);}
-    this.releaseOrientation  	= function() {BFc.releaseOrientation(this.gemNum);}
+    this.registerOrientation 	= function() {this.orientationRegistered=true;    ;BFc.registerOrientation(this.gemNum);}
+    this.releaseOrientation  	= function() {this.orientationRegistered=false;     ;BFc.releaseOrientation(this.gemNum);}
     /**SHAKE**/
-    this.registerShake 			= function(){BFc.registerShake(this.gemNum);}
-    this.releaseShake 			= function(){BFc.releaseShake(this.gemNum);}
+    this.registerShake 			= function(){this.registerShake=true;     ;BFc.registerShake(this.gemNum);}
+    this.releaseShake 			= function(){this.registerShake=false;     ;BFc.releaseShake(this.gemNum);}
     /**FREEFALL**/
-    this.registerFreeFall 		= function() { BFc.registerFreeFall(this.gemNum);}
-    this.releaseFreeFall  		= function() { BFc.releaseFreeFall(this.gemNum);}
+    this.registerFreeFall 		= function() { this.freeFallRegistered=true;     ;BFc.registerFreeFall(this.gemNum);}
+    this.releaseFreeFall  		= function() { this.freeFallRegistered=false;     ;BFc.releaseFreeFall(this.gemNum);}
      /**BUTTON**/
-    this.registerButton			= function() { BFc.registerButton(this.gemNum);}
-    this.releaseButton  		= function() { BFc.releaseButton(this.gemNum);}
+    this.registerButton			= function() { this.buttonRegistered=true;     ;BFc.registerButton(this.gemNum);}
+    this.releaseButton  		= function() { this.buttonRegistered=false;     ;BFc.releaseButton(this.gemNum);}
 
    
 

@@ -18,8 +18,47 @@ Git user can follow these steps in the terminal:
 
 otherwhise just download this repo from github.
  
+The library is suited both for recursive logic (like p5js) and event based logic (js/jquery).
  
-####Run the server
+#####p5js
+Following the sample sketch (available in the folder _sample\_p5_) for p5js with recursive logic:
+
+```javascript
+var didSomething = false;
+
+function setup() {
+   createCanvas(windowWidth, windowHeight);
+
+   BFc.setupSocket("192.168.137.30:9092");
+   
+}
+
+function draw() {
+  background(55,66,255);
+  
+  if(connector.getInstance().status=="OPENED" && !didSomething){
+    BFc[3].flashColor(0,255,0,3);
+    didSomething = true;   
+  }  
+}
+```
+
+#####javascript/jquery
+In event based programming remember to open the socket before calling it (available in the folder _sample\_p5_):
+
+```javascript
+$(function(){
+      BFc.setupSocket("192.168.137.30:9092"); 
+});
+```
+The HTML looks like:
+
+```html
+ <button onclick="BFc[3].flashColor(0,0,255,3);" style="margin:100px">FLASH LED 3 TIMES</button>
+```
+ 
+####Run the server (Optional)
+
 ######Mac OS X 
 - Navigate to client connector ```cd BFConnector/clientConnector```
 - Start the webserver with the command: ```python -m SimpleHTTPServer 8000```
@@ -30,7 +69,7 @@ In the folder clientConnector you can duplicate the _sample_ folder and rename i
 Open your browser and go to the url ```http://localhost:8000/yourname/```.
 
 
-The server is not necessary but just nice to have, you can directly open _index.html_ located in the sample folder or the duplicate of it.
+The server is not necessary but just nice to have.
 
 
 
@@ -64,14 +103,26 @@ if(BFc.status=="OPENED")
 
 ```
 
+__utility methods__  
+ 
+`setupSocket(socketAddress)`   start the communication with a socket address in the form `"192.168.1.17:9092"` (the server is receiving on port 9092)  
 
-`boardNumber` -1 until instantiated, then 0-5
+
+### __`gem` object__
+
+Every single board connected is abstracted via a gem object that is accessible via the BFc object.
+```javascript
+if(BFc[3].rssi>-50)
+{
+	console.log("It's close!");
+}
+```
+
+##### Attributes
 
 `buttonState` true is pressed, false is up
 
 `buttonRegistered` true or false
-
-`temperatureRegistered` true or false
 
 `temperature` eg 24.25
 
@@ -96,44 +147,44 @@ if(BFc.status=="OPENED")
 `batteryLevel` 0 to 100
 
 ##### Methods
-__utility methods__  
- 
-`setupSocket()` 					 start the communication with the connector on default address;  
-`setupSocket(socketAddress)`   start the communication with a socket address in the form `"192.168.1.17:9092"` (the server is receiving on port 9092)  
 
 __actuator methods__   
 `setColor(deviceNumber,red,green,blue,intensity)` set the color the led of one board. _deviceNumber_ is an integer between 0 and 4, the components _red_, _green_, _blue_ and _intensity_ are integers between 0 and 255
 
-`makeVibrate(deviceNumber)` _deviceNumber_ is an integer between 0 and 5, it will create a vibration
-`makeVibrateWithOptions(length,amplitude,deviceNumber)` length is an integer in ms between 0 and 5000, amplitude is 0 to 255
+`makeVibrate(duration)` _deviceNumber_ is an integer between 0 and 5, it will create a vibration
+
+__get methods__ 
+
+`getTemperature()`  
+
+`getRSSI()`  
+
+`getBatteryLevel()`
+
 
 __sensor methods__ 
 
 Sensors are organized with an observer pattern logic. 
 You can register to observe a sensor, when done you can release it.
 
-`registerButton`  
-`releaseButton`  
+`registerButton()`  
+`releaseButton()`  
 
-`registerTemperature`  
-`release Temperature`
+`registerShake()`  
+`releaseShake()`
 
-`registerShake`  
-`releaseShake`
+`registerFreeFall()`  
+`releaseFreeFall()`
 
-`registerFreeFall`  
-`releaseFreeFall`
+`registerOrientation()`  
+`releaseOrientation()`
 
-`registerOrientation`  
-`releaseOrientation`
-
-`registerTap`  
-`releaseTap`
+`registerTap()`  
+`releaseTap()`
 
 
 ### global methods
-
-`initDevice(deviceNumber)` 
+Global methods are called by the library when any of these events happen.
 
 `shaked()`
 

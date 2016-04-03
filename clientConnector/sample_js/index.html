@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Resonate Client Connector</title>
+    <title>BF Client Connector</title>
     <style>
       html, body {
       width:  100%;
@@ -14,22 +14,24 @@
     <script src="../libraries/jquery.js" type="text/javascript"></script>
     <script src="../libraries/utils.js" type="text/javascript"></script>
     <script>
+
     $(function(){
 
       BFc.setupSocket("192.168.137.30:9092"); 
       
     });
-    function socketOpened(){
-        
+
+    
+    function flash(){
+      BFc[3].flashColor(0,0,255,3);
     }
-    function shaked(){
-      $("body").css({"background-color":"rgb(123,123,22)"});
-      window.setTimeout(function(){
-          $("body").css({"background-color":"rgb(255,255,222)"});
-      }, 100);
-    }
+
+    function socketOpened(){}
+    function shaked(){}
+
     </script>
   </head>
   <body>
+  <button onclick="BFc[3].flashColor(0,0,255,3);" style="margin:100px">FLASH LED 3 TIMES</button>
   </body>
 </html>

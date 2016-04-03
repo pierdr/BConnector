@@ -1,1 +1,0 @@
-../../../../Metawear-iOSAPI/MetaWear.framework/Versions/A/Headers/MBLAccelerometerMMA8452Q.h

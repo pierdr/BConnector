@@ -10,6 +10,7 @@
 #import "NetworkManager.h"
 #import "ConsoleManager.h"
 #import "BoardsManager.h"
+#define RAND_FROM_TO(min, max) (min + arc4random_uniform(max - min + 1))
 
 @implementation NetworkManager
 
@@ -45,6 +46,16 @@
 - (void)server:(PSWebSocketServer *)server webSocket:(PSWebSocket *)webSocket didReceiveMessage:(id)message {
     
     NSLog(@"Server websocket did receive message: %@", message);
+    
+#if false
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(RAND_FROM_TO(1.0,2.0) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSTimeInterval timeInMiliseconds = [[NSDate date] timeIntervalSince1970];
+        printf("%f", timeInMiliseconds);
+        [webSocket send:@"{\"message\":\"test\"}"];
+        
+        
+    });
+#endif
  
     NSError *error = nil;
     NSData* data = [message dataUsingEncoding:NSUTF8StringEncoding];
@@ -69,7 +80,7 @@
             NSString* keyDirective      = [results valueForKey:@"message"];
             int boardNum                = [[results valueForKey:@"device"] intValue];
             int success                 = -1;
-            if(boardNum<0 || boardNum>MAX_NUM_OF_DEVICES)
+            if(boardNum<0 || boardNum>=MAX_NUM_OF_DEVICES)
             {
                [webSocket send:@"{\"error\":\"WRONG DEVICE NUM\"}"];
                 return;
@@ -199,13 +210,13 @@
             
             if(!success)
             {
-                [webSocket send:@"{\"error\":\"wrong BOARDNUMBER\"}"];
+                [webSocket send:@"{\"message\":\"error\",\"type\":\"wrong BOARDNUMBER\"}"];
             }
         }
        
         else{
             [[ConsoleManager sharedManager] log:@"received wrong message"];
-            [webSocket send:@"{\"error\":\"missing BOARDNUMBER or MESSAGE\"}"];
+            [webSocket send:@"{\"message\":\"error\",\"type\":\"missing BOARDNUMBER or MESSAGE\"}"];
             return;
         }
         /* proceed with results as you like; the assignment to

@@ -29,7 +29,7 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
 }
 -(id)init{
     self = [super init];
-    _deviceUUIDS=[NSArray arrayWithObjects:@"CADD0E85-70A5-C31F-434C-9899987DA446",@"C48030C3-AE8E-1E19-7D19-2597E78D4F56",@"FD8EC4DA-04F4-92F5-4553-97B79C748785",nil];
+    _deviceUUIDS=[NSArray arrayWithObjects:@"CADD0E85-70A5-C31F-434C-9899987DA446",@"C48030C3-AE8E-1E19-7D19-2597E78D4F56",@"FD8EC4DA-04F4-92F5-4553-97B79C748785",@"F06681D0-206C-260E-3AD0-E56D3DF8F0D6",@"66CD7A06-EC82-27AD-C4E0-F693A95117C3",nil];
     _bleModules = [NSMutableArray array];
     for (int i=0; i<MAX_NUM_OF_DEVICES; i++) {
         [_bleModules addObject:@""];
@@ -145,7 +145,9 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
     {
         MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
         [metaTmp.mechanicalSwitch.switchUpdateEvent startNotificationsWithHandlerAsync:^(MBLNumericData *obj, NSError *error) {
-            NSLog(@"Switch Changed: %@", obj);
+            //NSLog(@"Switch Changed: %@", obj);
+            NSString* newMessage=[NSString stringWithFormat:@"{\"message\":\"buttonEvent\",\"value\":\"%d\",\"boardNum\":\"%d\"}",[obj.value integerValue],boardNum];
+            [webSocket send:newMessage];
         }];
        /* [metaTmp.mechanicalSwitch.switchUpdateEvent startNotificationsWithHandlerAsync:^(MBLNumericData * _Nullable obj, NSError * _Nullable error) {
             if(error)
@@ -219,8 +221,9 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
                         case MBLAccelerometerOrientationLandscapeRight:
                             orientation = @"Portrait";
                             break;
+                            
                     }
-                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"orientationEvent\",\"value\":\"%@\"}",orientation];
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"orientationEvent\",\"value\":\"%@\",\"boardNum\":\"%d\"}",orientation,boardNum];
                     [webSocket send:newMessage];
                 }
             }];
@@ -241,6 +244,10 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
         if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerBMI160 class]]) {
             MBLAccelerometerBMI160 *accelerometerBMI160 = (MBLAccelerometerBMI160 *)metaTmp.accelerometer;
              [accelerometerBMI160.orientationEvent stopNotificationsAsync];
+        }
+        else if ([metaTmp.accelerometer isKindOfClass:[MBLAccelerometerMMA8452Q class]]) {
+            MBLAccelerometerMMA8452Q *accelerometerMMA8452Q = (MBLAccelerometerMMA8452Q *)metaTmp.accelerometer;
+            [accelerometerMMA8452Q.orientationEvent stopNotificationsAsync];
         }
        
         return 1;
@@ -269,7 +276,7 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
                 else
                 {
                     
-                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"tapEvent\"}"];
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"tapEvent\",\"boardNum\":\"%d\"}",boardNum];
                     [webSocket send:newMessage];
                 }
             }];
@@ -317,7 +324,7 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
                 else
                 {
                     
-                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"tapEvent\"}"];
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"tapEvent\",\"boardNum\":\"%d\"}",boardNum];
                     [webSocket send:newMessage];
                 }
             }];
@@ -364,7 +371,7 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
                 else
                 {
                     
-                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"freeFallEvent\"}"];
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"freeFallEvent\",\"boardNum\":\"%d\"}",boardNum];
                     [webSocket send:newMessage];
                 }
             }];
@@ -410,8 +417,11 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
                 }
                 else
                 {
-                    
-                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"shakeEvent\"}"];
+                 
+                    //NSTimeInterval timeInMiliseconds = [[NSDate date] timeIntervalSince1970];
+                    //printf("%f", timeInMiliseconds);
+
+                    NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"shakeEvent\",\"boardNum\":\"%d\"}",boardNum];
                     [webSocket send:newMessage];
                 }
             }];
@@ -448,9 +458,10 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
     if([[_bleModules objectAtIndex:boardNum] isKindOfClass:[MBLMetaWear class]])
     {
         MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
-        [[metaTmp.temperature.onboardThermistor readAsync] success:^(MBLNumericData * _Nonnull result) {
+      
+        [[metaTmp.temperature.onDieThermistor readAsync] success:^(MBLNumericData *  result) {
             
-            NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"temperatureGet\",\"value\":\"%f\"}",result.value.floatValue];
+            NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"temperatureGet\",\"value\":\"%f\",\"boardNum\":\"%d\"}",result.value.floatValue,boardNum];
             [webSocket send:newMessage];
         }];
         
@@ -467,7 +478,7 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
     {
         MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
         [metaTmp readRSSIWithHandler:^(NSNumber *number, NSError *error) {
-             NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"rssiGet\",\"value\":\"%f\"}",[number floatValue] ];
+             NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"rssiGet\",\"value\":\"%f\",\"boardNum\":\"%d\"}",[number floatValue],boardNum ];
             [webSocket send:newMessage];
         }];
         return 1;
@@ -483,7 +494,7 @@ __x > __high ? __high : (__x < __low ? __low : __x);\
     {
         MBLMetaWear* metaTmp = [_bleModules objectAtIndex:boardNum];
         [metaTmp readBatteryLifeWithHandler:^(NSNumber *number, NSError *error) {
-            NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"batteryGet\",\"value\":\"%f\"}",[number floatValue] ];
+            NSString *newMessage =[NSString stringWithFormat: @"{\"message\":\"batteryGet\",\"value\":\"%f\",\"boardNum\":\"%d\"}",[number floatValue],boardNum ];
             [webSocket send:newMessage];
         }];
         

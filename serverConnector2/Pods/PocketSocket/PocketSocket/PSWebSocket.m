@@ -169,6 +169,7 @@
 }
 - (void)send:(id)message {
     NSParameterAssert(message);
+    
     [self executeWork:^{
         if([message isKindOfClass:[NSString class]]) {
             [_driver sendText:message];

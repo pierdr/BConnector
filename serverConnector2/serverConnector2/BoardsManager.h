@@ -11,7 +11,7 @@
 #import <MetaWear/MetaWear.h>
 #import <PSWebSocketServer.h>
 
-#define MAX_NUM_OF_DEVICES 3
+#define MAX_NUM_OF_DEVICES 5
 
 @interface BoardsManager : NSObject
 

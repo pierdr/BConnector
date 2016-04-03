@@ -1,9 +1,10 @@
 /*******   
-Started by Pierluigi Dalla Rosa @Tellart for Resonate 2015
+Started by Tellart for Resonate 2015
 
 Further developed by Pierluigi Dalla Rosa @binaryfutures
 *******/
 
+var MAX_NUM_BOARDS = 20;
 
 var  connector= (function () {
     var instance;
@@ -14,35 +15,11 @@ var  connector= (function () {
         object.socket 				= new Object();
         object.status 			   	= "INIT";
 
-        object.boardNumber          = -1;
 
-        object.buttonState      	= false;
-        object.buttonRegistered   	= false;
-
-        object.temperatureRegistered = false;
-        object.temperature           = "";
-        
-        object.freeFallRegistered    = false;
-        object.freeFall              = false;
-
-        object.tapRegistered 		 = false;
-        object.tap					 = false;
-
-        object.shakeRegistered		 = false;
-        object.shaked 				 = false;
-
-        object.orientationRegistered = false;
-        object.orientation			 = "";
-
-        object.rssi					 = -1;
-
-        object.batteryLevel			 = -1;
+       
 
         object.setupSocket = function(socketAddress){
-			// setup websocket
-			// get_appropriate_ws_url is a nifty function by the libwebsockets people
-			// it decides what the websocket url is based on the broswer url
-			// e.g. https://mygreathost:9099 = wss://mygreathost:9099
+			
 			if(socketAddress=="")
 			{
 				socketAddress = "192.168.1.:9092";
@@ -59,26 +36,38 @@ var  connector= (function () {
 				object.socket.onopen = function() {
 					
 					object.status = "OPENED";
+					try{
+						socketOpened();
+					}
+					catch(e)
+					{
+
+					}
 				} 
 
 
 				// received message
 				object.socket.onmessage =function got_packet(msg) {
-					console.log(msg);
+					
 					messageObject = JSON.parse(msg.data);
-
+					boardNumReceived = messageObject["boardNum"]-0;
+					console.info("::: ----> received:\""+messageObject["message"]+"\"");
+					if(( (object[boardNumReceived]==undefined)) && boardNumReceived!=undefined)
+						{
+							object[boardNumReceived] = new gemObject();
+						}
 					if(messageObject["message"]=="buttonEvent")
 					{
-						if(messageObject["value"]==0 || messageObject["value"]=="0")
 
+						if(messageObject["value"]==0 || messageObject["value"]=="0")
 						{
-							object.buttonState=false;
+							
+							object[boardNumReceived].buttonState = false;
 						}
 						else
 						{
-							object.buttonState=true;
-							
-							
+								
+							object[boardNumReceived].buttonState = true;						
 						}
 						try{
 					        buttonPressed();
@@ -91,17 +80,17 @@ var  connector= (function () {
 					}
 					else if(messageObject["message"] == "rssiGet")
 					{
-						object.rssi = messageObject["value"];
+						object[boardNumReceived].rssi = messageObject["value"];
 					}
 					else if(messageObject["message"] == "temperatureGet")
 					{
-						object.temperature = messageObject["value"];
+						object[boardNumReceived].temperature = messageObject["value"];
 					}
 					else if(messageObject["message"] == "tapEvent")
 					{
-						object.tap = true;
+						object[boardNumReceived].tap = true;
 						window.setTimeout(function(){
-								object.tap = false;
+								object[boardNumReceived].tap = false;
 						},100);
 
 						try{
@@ -114,13 +103,14 @@ var  connector= (function () {
 					}
 					else if(messageObject["message"] == "batteryGet")
 					{
-						object.batteryLevel = messageObject["value"];
+						object[boardNumReceived].batteryLevel = messageObject["value"];
+
 					}
 					else if(messageObject["message"] == "freeFallEvent")
 					{
-						object.freeFall = true;
+						object[boardNumReceived].freeFall = true;
 						window.setTimeout(function(){
-								object.freeFall = false;
+								object[boardNumReceived].freeFall = false;
 						},500);
 						try{
 					        isFalling();
@@ -144,9 +134,12 @@ var  connector= (function () {
 					}
 					else if(messageObject["message"] == "shakeEvent")
 					{
-						object.shaked = true;
+						
+						object[boardNumReceived].shaked = true;
+						//console.log(Date.now());
 						window.setTimeout(function(){
-								object.shaked = false;
+								
+							object[boardNumReceived].shaked = false;
 						},100);
 
 						try{
@@ -172,6 +165,10 @@ var  connector= (function () {
 							
 						}
 					}
+					else if(messageObject["message"] == "test")
+					{
+						console.log(Date.now());
+					}
 				}
 
 				object.socket.onclose = function(){
@@ -188,8 +185,19 @@ var  connector= (function () {
 				object.status = "ERROR";
 			}
 		}
+
+		object.checkIfGemExists=function(boardNum)
+		{
+			if(( (object[boardNum]==undefined)) && boardNum!=undefined)
+			{
+				object[boardNum] = new gemObject(boardNum);
+			}
+		}
+
+
 		object.flashColor = function(deviceNumber,red,green,blue,numberOfFlashes)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(arguments.length == 5)
 			{	
 				
@@ -204,8 +212,10 @@ var  connector= (function () {
 			}
 		}
 
+
 		object.setColor = function(deviceNumber,red,green,blue,intensity)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(arguments.length == 5)
 			{	
 				
@@ -215,9 +225,9 @@ var  connector= (function () {
 				this.sendMessage(message);
 				
 			}
-			else
+			else if(arguments.length == 4)
 			{
-				var message="{\"message\":\"setColor\",\"device\":\""+object.boardNumber+"\",\"red\":\""+arguments[0]+"\",\"blue\":\""+arguments[1]+"\",\"green\":\""+arguments[2]+"\",\"intensity\":\""+arguments[3]+"\"}";
+				var message="{\"message\":\"setColor\",\"device\":\""+deviceNumber+"\",\"red\":\""+arguments[1]+"\",\"blue\":\""+arguments[2]+"\",\"green\":\""+arguments[3]+"\",\"intensity\":\"255\"}";
 				
 				this.sendMessage(message);
 				
@@ -239,8 +249,10 @@ var  connector= (function () {
 			this.sendMessage(message);
 			
 		}
+
 		object.getBatteryLevel = function(deviceNumber)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: readBatteryLevel :: no device number");
@@ -252,6 +264,7 @@ var  connector= (function () {
 		}
 		object.getRSSI = function(deviceNumber)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: readRSSI :: no device number");
@@ -263,6 +276,7 @@ var  connector= (function () {
 		}
 		object.registerButton = function(deviceNumber)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: registerButton :: no device number");
@@ -275,6 +289,7 @@ var  connector= (function () {
 		}
 		object.getTemperature = function(deviceNumber)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: getTemperature :: no device number");
@@ -286,7 +301,7 @@ var  connector= (function () {
 
 		}
 		object.releaseTemperature= function(){
-			
+			object.checkIfGemExists(deviceNumber);
 			console.warn("connector :: releaseTemperature :: discontinued");
 			return;
 			var message="{\"message\":\"releaseTemperature\"}";
@@ -296,6 +311,7 @@ var  connector= (function () {
 		
 		object.registerShake = function(deviceNumber)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: registerShake :: no device number");
@@ -307,12 +323,13 @@ var  connector= (function () {
 		}
 
 		object.releaseShake= function(deviceNumber){
-
+			object.checkIfGemExists(deviceNumber);
 			var message="{\"message\":\"releaseShake\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 		}
 		object.registerFreeFall = function(deviceNumber)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: registerFreeFall :: no device number");
@@ -321,11 +338,13 @@ var  connector= (function () {
 			this.sendMessage(message);
 		}
 		object.releaseFreeFall= function(deviceNumber){
+			object.checkIfGemExists(deviceNumber);
 			var message="{\"message\":\"releaseFreeFall\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 		}
 		object.registerTap = function(deviceNumber)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: registerTap :: no device number");
@@ -334,12 +353,13 @@ var  connector= (function () {
 			this.sendMessage(message);
 		}
 		object.releaseTap= function(deviceNumber){
-			
+			object.checkIfGemExists(deviceNumber);
 			var message="{\"message\":\"releaseTap\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 		}
 		object.registerDoubleTap = function(deviceNumber)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: registerDoubleTap :: no device number");
@@ -348,12 +368,13 @@ var  connector= (function () {
 			this.sendMessage(message);
 		}
 		object.releaseDoubleTap= function(deviceNumber){
-			
+			object.checkIfGemExists(deviceNumber);
 			var message="{\"message\":\"releaseDoubleTap\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 		}
 		object.registerOrientation = function(deviceNumber)
 		{
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: registerOrientation :: no device number");
@@ -363,13 +384,13 @@ var  connector= (function () {
 			this.sendMessage(message);
 		}
 		object.releaseOrientation= function(deviceNumber){
-			
+			object.checkIfGemExists(deviceNumber);
 			var message="{\"message\":\"releaseOrientation\",\"device\":\""+deviceNumber+"\"}";
 			object.orientationRegistered = false;
 			this.sendMessage(message);
 		}
 		object.makeVibrate= function(deviceNumber,duration){
-
+			object.checkIfGemExists(deviceNumber);
 			if(deviceNumber==undefined)
 			{
 				console.warn("connector :: makevibrate :: no device number");
@@ -388,7 +409,7 @@ var  connector= (function () {
 			this.sendMessage(message);
 		}
 		object.makeVibrateWithOptions= function(length,amplitude,deviceNumber){
-
+			object.checkIfGemExists(deviceNumber);
 			console.warn("connector :: makeVibrateWithOptions not supoorted");
 			return;
 			if(length=="" || length==undefined)
@@ -409,6 +430,7 @@ var  connector= (function () {
 		}
 
 		object.releaseButton= function(deviceNumeber){
+			object.checkIfGemExists(deviceNumber);
 			var message="{\"message\":\"releaseButton\",\"device\":\""+deviceNumber+"\"}";
 			this.sendMessage(message);
 			this.buttonRegistered = false;
@@ -420,15 +442,15 @@ var  connector= (function () {
 			}
 			catch(e)
 			{
-				console.warn("error in communicating with the connector");
+				console.warn("communication error: "+e);
 			}
 
 		}
+
+
+
         return object;
     }
-    
-
- 
     return {
         getInstance: function () {
             if (!instance) {
@@ -442,18 +464,96 @@ var  connector= (function () {
 window.BFc = connector.getInstance();
 
 
-function clamp(value, minVal, maxVal)
+var gemObject = function(gemNumber)
 {
-	if(value<minVal)
-	{
-		value = minVal;
-		return value;
-	}
-	if(value>maxVal)
-	{
-		value = maxVal;
-		return value;
-	}
-	return value;
+	this.gemNum					= gemNumber;
+
+	this.freeFallRegistered 	= false;
+	this.freeFall				= false;
+
+	this.buttonRegistered   	= false;
+    this.buttonState      		= false;
+       
+    this.temperatureRegistered 	= false;
+    this.temperature           	= -1;
+        
+    this.freeFallRegistered    = false;
+    this.freeFall              = false;
+
+    this.tapRegistered 		 	= false;
+    this.tap					= false;
+
+    this.shakeRegistered		= false;
+    this.shaked 				= false;
+
+    this.orientationRegistered 	= false;
+    this.orientation			= "";
+
+    this.rssi					= -1;
+
+    this.batteryLevel			= -1;
+
+
+    //*** ACTUATORS' METHODS ***//
+    this.setColor=function(r,g,b)
+    {
+    	BFc.setColor(this.gemNum,r,g,b);
+    }
+    this.flashColor=function(r,g,b,numOfFlashes)
+    {
+    	BFc.flashColor(this.gemNum,r,g,b,numOfFlashes);
+    }
+	this.makeVibrate=function(duration)
+    {
+    	BFc.makeVibrate(this.gemNum,duration);
+    }
+
+    this.makeVibrate=function(duration)
+    {
+    	BFc.makeVibrate(this.gemNum,duration);
+    }
+
+    //*** GET METHODS***//
+    this.getRSSI = function()
+    {
+    	BFc.getRSSI(this.gemNum);
+    }
+    this.getBatteryLevel = function()
+    {
+    	BFc.getBatteryLevel(this.gemNum);
+    }
+    this.getTemperature = function()
+    {
+    	BFc.getTemperature(this.gemNum);
+    }
+
+    //*** SENSORS' METHODS ***//
+    /**TAP**/
+    this.registerTap 			= function(){BFc.registerTap(this.gemNum);}
+    this.releaseTap 			= function(){BFc.releaseTap(this.gemNum);}
+    /**DOUBLETAP**/
+    this.registerDoubleTap 		= function(){BFc.registerDoubleTap(this.gemNum);}
+    this.releaseDoubleTap 		= function(){BFc.releaseDoubleTap(this.gemNum);}
+    /**ORIENTATION**/
+    this.registerOrientation 	= function() {BFc.registerOrientation(this.gemNum);}
+    this.releaseOrientation  	= function() {BFc.releaseOrientation(this.gemNum);}
+    /**SHAKE**/
+    this.registerShake 			= function(){BFc.registerShake(this.gemNum);}
+    this.releaseShake 			= function(){BFc.releaseShake(this.gemNum);}
+    /**FREEFALL**/
+    this.registerFreeFall 		= function() { BFc.registerFreeFall(this.gemNum);}
+    this.releaseFreeFall  		= function() { BFc.releaseFreeFall(this.gemNum);}
+     /**BUTTON**/
+    this.registerButton			= function() { BFc.registerButton(this.gemNum);}
+    this.releaseButton  		= function() { BFc.releaseButton(this.gemNum);}
+
+   
+
 }
- 
+//INIT GEMS
+for(var i=0;i<MAX_NUM_BOARDS;i++)
+{
+	BFc.checkIfGemExists(i);
+}
+
+

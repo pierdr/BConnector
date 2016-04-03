@@ -17,7 +17,8 @@ Git user can follow these steps in the terminal:
 
 
 otherwhise just download this repo from github.
-
+ 
+ 
 ####Run the server
 ######Mac OS X 
 - Navigate to client connector ```cd BFConnector/clientConnector```
@@ -31,11 +32,12 @@ Open your browser and go to the url ```http://localhost:8000/yourname/```.
 
 The server is not necessary but just nice to have, you can directly open _index.html_ located in the sample folder or the duplicate of it.
 
- 
+
+
 
 ## Reference
 <p align="center" >
-  <img src="serverConnector/system.png" alt="AFNetworking" title="AFNetworking">
+  <img src="archive/BFEducationalKit.png" alt="AFNetworking" title="AFNetworking">
 </p>
 
 
@@ -44,10 +46,9 @@ The server is not necessary but just nice to have, you can directly open _index.
 
 The connector object is a singleton that abstracts the controller of the ble modules. 
 
-To retrieve the object call `getInstance` on connector.
 
 ```javascript
-connector.getInstance()
+BFc
 ```
 
 
@@ -56,7 +57,7 @@ connector.getInstance()
 `status`  _INIT_, _OPENED_, _RUNNING_, _CLOSED_, _ERROR_
 
 ```javascript
-if(connector.getInstance().status=="OPENED")
+if(BFc.status=="OPENED")
 {
 	background(12,255,23);
 }
@@ -144,12 +145,16 @@ You can register to observe a sensor, when done you can release it.
 
 `buttonPressed()`
 
+
+
+
+
 --
 ###History
 
-The project is forked from *designing connected experiences with ble* hosted by Tellart during Resonate 2015.
+The project is forked from *designing connected experiences with ble* ([workshop description](http://resonate.io/2015/education/designing-connected-experiences-with-ble/)) hosted by Tellart during Resonate 2015.
 
-[Workshop description](http://resonate.io/2015/education/designing-connected-experiences-with-ble/)
+
 
 
 

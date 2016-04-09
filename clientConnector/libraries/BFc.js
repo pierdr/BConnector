@@ -500,7 +500,7 @@ var gemObject = function(gemNumber)
     //*** ACTUATORS' METHODS ***//
     this.setColor=function(r,g,b)
     {
-    	BFc.setColor(this.gemNum,r,g,b);
+    	BFc.setColor(this.gemNum,r,b,g);
     }
     this.flashColor=function(r,g,b,numOfFlashes)
     {
